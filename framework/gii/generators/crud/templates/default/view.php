@@ -19,7 +19,7 @@ if (is_array($this->tableSchema->primaryKey))
 	}
 }
 else
-	$strFields = '$model->'.$this->tableSchema->primaryKey;
+	$strFields = $strId = '$model->'.$this->tableSchema->primaryKey;
 
 ?>
 <?php echo "<?php\n"; ?>
