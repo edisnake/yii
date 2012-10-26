@@ -96,6 +96,8 @@ abstract class CAction extends CComponent implements IAction
 					$ps[]=is_array($params[$name]) ? $params[$name] : array($params[$name]);
 				else if(!is_array($params[$name]))
 					$ps[]=$params[$name];
+				else if(is_array($params[$name]))
+					$ps[]=$params[$name];
 				else
 					return false;
 			}

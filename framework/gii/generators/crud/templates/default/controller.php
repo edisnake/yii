@@ -4,6 +4,19 @@
  * The following variables are available in this template:
  * - $this: the CrudCode object
  */
+if (is_array($this->tableSchema->primaryKey))
+{
+	/* for composite primary keys, id is an array */
+	$strModel = '';
+	foreach($this->tableSchema->primaryKey as $nameField)
+		$strModel .= '\''.$nameField.'\'=>$model->'.$nameField.',';
+	
+	if ($strModel)
+		$strModel = 'array('.substr($strModel, 0, -1).')';
+}
+else
+	$strModel = '$model->'.$this->tableSchema->primaryKey;
+
 ?>
 <?php echo "<?php\n"; ?>
 
@@ -78,7 +91,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		{
 			$model->attributes=$_POST['<?php echo $this->modelClass; ?>'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model-><?php echo $this->tableSchema->primaryKey; ?>));
+				$this->redirect(array('view','id'=><?php echo $strModel; ?>));
 		}
 
 		$this->render('create',array(
@@ -102,7 +115,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 		{
 			$model->attributes=$_POST['<?php echo $this->modelClass; ?>'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model-><?php echo $this->tableSchema->primaryKey; ?>));
+				$this->redirect(array('view','id'=><?php echo $strModel; ?>));
 		}
 
 		$this->render('update',array(
