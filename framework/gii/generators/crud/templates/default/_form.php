@@ -30,7 +30,24 @@ foreach($this->tableSchema->columns as $column)
 ?>
 	<div class="row"<?php if ($column->isPrimaryKey) echo " <?php if (!\$model->isNewRecord) echo \"style='display: none;'\"; ?>"; ?>>
 		<?php echo "<?php echo ".$this->generateActiveLabel($this->modelClass,$column)."; ?>\n"; ?>
-		<?php echo "<?php echo ".$this->generateActiveField($this->modelClass,$column)."; ?>\n"; ?>
+		<?php if(preg_match('/(date)/',strtolower($column->dbType)))
+			  {
+				echo "<?php \$currentDate = (\$model->{$column->name} == '')? date('Y-m-d') : \$model->{$column->name}; \n\t\t\t"; 
+			  	echo "echo \$form->textField(\$model,'{$column->name}',array('value' => \$currentDate)); \n\t\t\t"; 
+			  	echo "\$form->widget('zii.widgets.jui.CJuiDatePicker',
+				array(
+					  'model'=>\$model,
+					  'attribute'=>'{$column->name}',
+					  'language'=>'es',
+					  'options'=>array(
+                      		'showAnim' => 'fold',
+                        	'dateFormat' => 'yy-mm-dd'
+					  )
+				),
+				true); ?>\n";
+			  }
+			  else
+			   	echo "<?php echo ".$this->generateActiveField($this->modelClass,$column)."; ?>\n"; ?>
 		<?php echo "<?php echo \$form->error(\$model,'{$column->name}'); ?>\n"; ?>
 	</div>
 

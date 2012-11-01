@@ -9,13 +9,14 @@ class CrudCode extends CCodeModel
 	private $_modelClass;
 	private $_table;
 	private $validModelClasses = array();
+	private $moduleId;
 
 	public function rules()
 	{
 		return array_merge(parent::rules(), array(
 			array('model, controller', 'filter', 'filter'=>'trim'),
 			array('model, baseControllerClass', 'required'),
-			array('model', 'match', 'pattern'=>'/^(\w+[\w\.]*|\*?|\w+\.\*)$/', 'message'=>'{attribute} should only contain word characters and dots, and an optional ending asterisk.'),
+			array('model', 'match', 'pattern'=>'/^(\w+[\w\.]*|\*?|[\w+\.]+\*{1})$/', 'message'=>'{attribute} should only contain word characters and dots, and an optional ending asterisk.'),
 			array('controller', 'match', 'pattern'=>'/^\w+[\w+\\/]*$/', 'message'=>'{attribute} should only contain word characters and slashes.'),
 			array('baseControllerClass', 'match', 'pattern'=>'/^[a-zA-Z_]\w*$/', 'message'=>'{attribute} should only contain word characters.'),
 			array('baseControllerClass', 'validateReservedWord', 'skipOnError'=>true),
@@ -49,7 +50,8 @@ class CrudCode extends CCodeModel
 
 	public function successMessage()
 	{
-		$link=CHtml::link('try it now', Yii::app()->createUrl($this->controller), array('target'=>'_blank'));
+		$moduleId=(isset($this->moduleId))?$this->moduleId.'/':'';
+		$link=CHtml::link('try it now', Yii::app()->createUrl($moduleId.$this->controller), array('target'=>'_blank'));
 		return "The controller has been generated successfully. You may $link.";
 	}
 
@@ -58,19 +60,19 @@ class CrudCode extends CCodeModel
 		if($this->hasErrors('model'))
 			return;
 		// ====  NEW FEATURE ==== If user wanna generate crud for all tables
-		if($this->model==='*')
+		if(preg_match('/(\*)/',$this->model))
 		{
 			$tables=Yii::app()->db->schema->getTables();
+			$modelPath=substr($this->model, 0, strpos($this->model, '*', 0));
 			
 			foreach($tables as $table)
 			{
 				$className='';
 				foreach(explode('_',$table->name) as $name)
-				{
 					if($name!=='')
 						$className.=ucfirst(strtolower($name));
-				}
-				
+								
+				$className = $modelPath.$className;
 				$class=@Yii::import($className,true);
 				if(!is_string($class) || !$this->classExists($class))
 					$this->addError('model', "Class '$className' does not exist or has syntax error.");					
@@ -82,12 +84,12 @@ class CrudCode extends CCodeModel
 					if($tableAux->primaryKey===null)
 						$this->addError('model',"Table '{$tableAux->name}' does not have a primary key.");
 					else
-						$this->validModelClasses[] = array('class' => $class, 'table' => $tableAux);					
+						$this->validModelClasses[] = array('class' => $class, 'table' => $tableAux);
 				}
-			}			
+			}
 		}
-		else{
-			
+		else
+		{
 			$class=@Yii::import($this->model,true);
 			if(!is_string($class) || !$this->classExists($class))
 				$this->addError('model', "Class '{$this->model}' does not exist or has syntax error.");
@@ -115,7 +117,7 @@ class CrudCode extends CCodeModel
 		$files=scandir($templatePath);
 
 		// ====  NEW FEATURE ==== If user wanna generate crud for all tables
-		if($this->model==='*')
+		if(preg_match('/(\*)/',$this->model))
 		{						
 			foreach($this->validModelClasses as $validModelClass)
 			{
@@ -178,6 +180,21 @@ class CrudCode extends CCodeModel
 
 	public function getModule()
 	{
+		$strModel=strtolower($this->model);
+		if(preg_match('/(application\.modules\.)/',$strModel))
+		{
+			$strModule=str_replace('application.modules.','',$strModel);
+			if(($pos=strpos($strModule,'.'))!==false)
+			{
+				$id=substr($strModule,0,$pos);
+				if(($module=Yii::app()->getModule($id))!==null)
+				{
+					$this->moduleId=$id; 
+					return $module;
+				}	
+			}
+		}
+		
 		if(($pos=strpos($this->controller,'/'))!==false)
 		{
 			$id=substr($this->controller,0,$pos);
@@ -189,8 +206,8 @@ class CrudCode extends CCodeModel
 
 	public function getControllerID()
 	{
-		if($this->getModule()!==Yii::app())
-			$id=substr($this->controller,strpos($this->controller,'/')+1);
+		if($this->getModule()!==Yii::app() && $pos=strpos($this->controller,'/')!==false)
+			$id=substr($this->controller,$pos+1);
 		else
 			$id=$this->controller;
 		if(($pos=strrpos($id,'/'))!==false)
