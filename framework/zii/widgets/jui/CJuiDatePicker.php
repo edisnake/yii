@@ -36,7 +36,6 @@ Yii::import('zii.widgets.jui.CJuiInputWidget');
  * for possible options (name-value pairs).
  *
  * @author Sebastian Thierer <sebathi@gmail.com>
- * @version $Id$
  * @package zii.widgets.jui
  * @since 1.1
  */
@@ -61,7 +60,7 @@ class CJuiDatePicker extends CJuiInputWidget
 	public $defaultOptions;
 
 	/**
-	 * @var boolean If true, shows the widget as an inline calendar and the input as a hidden field. Use the onSelect event to update the hidden field
+	 * @var boolean If true, shows the widget as an inline calendar and the input as a hidden field.
 	 */
 	public $flat = false;
 
@@ -102,8 +101,7 @@ class CJuiDatePicker extends CJuiInputWidget
 				$this->options['defaultDate'] = $this->value;
 			}
 
-			if (!isset($this->options['onSelect']))
-				$this->options['onSelect']="js:function( selectedDate ) { jQuery('#{$id}').val(selectedDate);}";
+			$this->options['altField']='#'.$id;
 
 			$id = $this->htmlOptions['id'] = $id.'_container';
 			$this->htmlOptions['name'] = $name.'_container';
