@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -435,7 +435,7 @@ class CClientScript extends CApplicationComponent
 		if(isset($this->scripts[self::POS_LOAD]))
 		{
 			if($fullPage)
-				$scripts[]="jQuery(window).load(function() {\n".implode("\n",$this->scripts[self::POS_LOAD])."\n});";
+				$scripts[]="jQuery(window).on('load',function() {\n".implode("\n",$this->scripts[self::POS_LOAD])."\n});";
 			else
 				$scripts[]=implode("\n",$this->scripts[self::POS_LOAD]);
 		}

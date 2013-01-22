@@ -8,7 +8,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  * @package system
  * @since 1.0
@@ -126,7 +126,7 @@ $requirements=array(
 		'<a href="http://www.yiiframework.com/doc/api/CWebService">CWebService</a>, <a href="http://www.yiiframework.com/doc/api/CWebServiceAction">CWebServiceAction</a>',
 		''),
 	array(
-		t('yii','GD extension with<br />FreeType support<br />or ImageMagick extension'),
+		t('yii','GD extension with<br />FreeType support<br />or ImageMagick<br />extension with<br />PNG support'),
 		false,
 		'' === $message=checkCaptchaSupport(),
 		'<a href="http://www.yiiframework.com/doc/api/CCaptchaAction">CCaptchaAction</a>',
@@ -167,11 +167,17 @@ function checkServerVar()
 function checkCaptchaSupport()
 {
 	if(extension_loaded('imagick'))
-		return '';
-	elseif(extension_loaded('gd'))
 	{
-		$gdinfo=gd_info();
-		if($gdinfo['FreeType Support'])
+		$imagick=new Imagick();
+		$imagickFormats=$imagick->queryFormats('PNG');
+	}
+	if(extension_loaded('gd'))
+		$gdInfo=gd_info();
+	if(isset($imagickFormats) && in_array('PNG',$imagickFormats))
+		return '';
+	elseif(isset($gdInfo))
+	{
+		if($gdInfo['FreeType Support'])
 			return '';
 		return t('yii','GD installed,<br />FreeType support not installed');
 	}
