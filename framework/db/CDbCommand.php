@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -574,6 +574,9 @@ class CDbCommand extends CComponent
 		if(!empty($query['having']))
 			$sql.="\nHAVING ".$query['having'];
 
+		if(!empty($query['union']))
+			$sql.="\nUNION (\n".(is_array($query['union']) ? implode("\n) UNION (\n",$query['union']) : $query['union']) . ')';
+
 		if(!empty($query['order']))
 			$sql.="\nORDER BY ".$query['order'];
 
@@ -581,9 +584,6 @@ class CDbCommand extends CComponent
 		$offset=isset($query['offset']) ? (int)$query['offset'] : -1;
 		if($limit>=0 || $offset>0)
 			$sql=$this->_connection->getCommandBuilder()->applyLimit($sql,$limit,$offset);
-
-		if(!empty($query['union']))
-			$sql.="\nUNION (\n".(is_array($query['union']) ? implode("\n) UNION (\n",$query['union']) : $query['union']) . ')';
 
 		return $sql;
 	}
@@ -1050,6 +1050,13 @@ class CDbCommand extends CComponent
 	 * Columns can be specified in either a string (e.g. "id ASC, name DESC") or an array (e.g. array('id ASC', 'name DESC')).
 	 * The method will automatically quote the column names unless a column contains some parenthesis
 	 * (which means the column contains a DB expression).
+	 *
+	 * For example, to get "ORDER BY 1" you should use
+	 *
+	 * <pre>
+	 * $criteria->order('(1)');
+	 * </pre>
+	 *
 	 * @return CDbCommand the command object itself
 	 * @since 1.1.6
 	 */

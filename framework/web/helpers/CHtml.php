@@ -4,7 +4,7 @@
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @link http://www.yiiframework.com/
- * @copyright Copyright &copy; 2008-2011 Yii Software LLC
+ * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
 
@@ -768,9 +768,9 @@ class CHtml
 	 * </pre>
 	 * </li>
 	 * </ul>
-	 * Since version 1.1.13, a special option named 'unselectValue' is available that can be used to specify
-	 * the value returned when the option is not selected in multiple mode. When set, a hidden field is
-	 * rendered so that when the option is not selected in multiple mode, we can still obtain the posted
+	 * Since 1.1.13, a special option named 'unselectValue' is available. It can be used to set the value
+	 * that will be returned when no option is selected in multiple mode. When set, a hidden field is
+	 * rendered so that if no option is selected in multiple mode, we can still obtain the posted
 	 * unselect value. If 'unselectValue' is not set or set to NULL, the hidden field will not be rendered.
 	 * @return string the generated drop down list
 	 * @see clientChange
@@ -797,12 +797,7 @@ class CHtml
 
 			if(isset($htmlOptions['unselectValue']))
 			{
-				// add a hidden field so that if the option is not selected, it still submits a value
-				if(isset($htmlOptions['id']) && $htmlOptions['id']!==false)
-					$hiddenOptions=array('id'=>self::ID_PREFIX.$htmlOptions['id']);
-				else
-					$hiddenOptions=array('id'=>false);
-
+				$hiddenOptions=isset($htmlOptions['id']) ? array('id'=>self::ID_PREFIX.$htmlOptions['id']) : array('id'=>false);
 				$hidden=self::hiddenField(substr($htmlOptions['name'],0,-2),$htmlOptions['unselectValue'],$hiddenOptions);
 				unset($htmlOptions['unselectValue']);
 			}
@@ -866,7 +861,7 @@ class CHtml
 	 * for single selection or an array for multiple selections.
 	 * @param array $data value-label pairs used to generate the check box list.
 	 * Note, the values will be automatically HTML-encoded, while the labels will not.
-	 * @param array $htmlOptions addtional HTML options. The options will be applied to
+	 * @param array $htmlOptions additional HTML options. The options will be applied to
 	 * each checkbox input. The following special options are recognized:
 	 * <ul>
 	 * <li>template: string, specifies how each checkbox is rendered. Defaults
@@ -884,6 +879,8 @@ class CHtml
 	 * for every label tag in the list.</li>
 	 * <li>container: string, specifies the checkboxes enclosing tag. Defaults to 'span'.
 	 * If the value is an empty string, no enclosing tag will be generated</li>
+	 * <li>baseID: string, specifies the base ID prefix to be used for checkboxes in the list.
+	 * This option is available since version 1.1.13.</li>
 	 * </ul>
 	 * @return string the generated check box list
 	 */
@@ -908,7 +905,8 @@ class CHtml
 		unset($htmlOptions['labelOptions']);
 
 		$items=array();
-		$baseID=self::getIdByName($name);
+		$baseID=isset($htmlOptions['baseID']) ? $htmlOptions['baseID'] : self::getIdByName($name);
+		unset($htmlOptions['baseID']);
 		$id=0;
 		$checkAll=true;
 
@@ -964,7 +962,7 @@ EOD;
 	 * @param string $select selection of the radio buttons.
 	 * @param array $data value-label pairs used to generate the radio button list.
 	 * Note, the values will be automatically HTML-encoded, while the labels will not.
-	 * @param array $htmlOptions addtional HTML options. The options will be applied to
+	 * @param array $htmlOptions additional HTML options. The options will be applied to
 	 * each radio button input. The following special options are recognized:
 	 * <ul>
 	 * <li>template: string, specifies how each radio button is rendered. Defaults
@@ -975,6 +973,8 @@ EOD;
 	 * for every label tag in the list.</li>
 	 * <li>container: string, specifies the radio buttons enclosing tag. Defaults to 'span'.
 	 * If the value is an empty string, no enclosing tag will be generated</li>
+	 * <li>baseID: string, specifies the base ID prefix to be used for radio buttons in the list.
+	 * This option is available since version 1.1.13.</li>
 	 * </ul>
 	 * @return string the generated radio button list
 	 */
@@ -989,7 +989,8 @@ EOD;
 		unset($htmlOptions['labelOptions']);
 
 		$items=array();
-		$baseID=self::getIdByName($name);
+		$baseID=isset($htmlOptions['baseID']) ? $htmlOptions['baseID'] : self::getIdByName($name);
+		unset($htmlOptions['baseID']);
 		$id=0;
 		foreach($data as $value=>$label)
 		{
@@ -1550,11 +1551,10 @@ EOD;
 	 * </pre>
 	 * </li>
 	 * </ul>
-	 * Since 1.1.13, a special option named 'unselectValue' is available that can be used to specify
-	 * the value returned when the option is not selected in multiple mode. By default, this value is ''.
-	 * Internally, a hidden field is rendered so that when the option is not selected in multiple mode,
-	 * we can still obtain the posted unselect value.
-	 * If 'unselectValue' is set as NULL, the hidden field will not be rendered.
+	 * Since 1.1.13, a special option named 'unselectValue' is available. It can be used to set the value
+	 * that will be returned when no option is selected in multiple mode. When set, a hidden field is
+	 * rendered so that if no option is selected in multiple mode, we can still obtain the posted
+	 * unselect value. If 'unselectValue' is not set or set to NULL, the hidden field will not be rendered.
 	 * @return string the generated drop down list
 	 * @see clientChange
 	 * @see listData
@@ -1570,24 +1570,18 @@ EOD;
 			self::addErrorCss($htmlOptions);
 
 		$hidden='';
-
 		if(isset($htmlOptions['multiple']))
 		{
 			if(substr($htmlOptions['name'],-2)!=='[]')
 				$htmlOptions['name'].='[]';
 
-			if(!array_key_exists('unselectValue',$htmlOptions))
-				$htmlOptions['unselectValue']='';
-
-			if($htmlOptions['unselectValue']!==null)
+			if(isset($htmlOptions['unselectValue']))
 			{
 				$hiddenOptions=isset($htmlOptions['id']) ? array('id'=>self::ID_PREFIX.$htmlOptions['id']) : array('id'=>false);
 				$hidden=self::hiddenField(substr($htmlOptions['name'],0,-2),$htmlOptions['unselectValue'],$hiddenOptions);
+				unset($htmlOptions['unselectValue']);
 			}
-
-			unset($htmlOptions['unselectValue']);
 		}
-
 		return $hidden . self::tag('select',$htmlOptions,$options);
 	}
 
@@ -1645,7 +1639,7 @@ EOD;
 	 * @param string $attribute the attribute
 	 * @param array $data value-label pairs used to generate the check box list.
 	 * Note, the values will be automatically HTML-encoded, while the labels will not.
-	 * @param array $htmlOptions addtional HTML options. The options will be applied to
+	 * @param array $htmlOptions additional HTML options. The options will be applied to
 	 * each checkbox input. The following special options are recognized:
 	 * <ul>
 	 * <li>template: string, specifies how each checkbox is rendered. Defaults
@@ -1700,7 +1694,7 @@ EOD;
 	 * @param string $attribute the attribute
 	 * @param array $data value-label pairs used to generate the radio button list.
 	 * Note, the values will be automatically HTML-encoded, while the labels will not.
-	 * @param array $htmlOptions addtional HTML options. The options will be applied to
+	 * @param array $htmlOptions additional HTML options. The options will be applied to
 	 * each radio button input. The following special options are recognized:
 	 * <ul>
 	 * <li>template: string, specifies how each radio button is rendered. Defaults
@@ -1890,16 +1884,18 @@ EOD;
 	 *
 	 * @param mixed $model the model. This can be either an object or an array.
 	 * @param mixed $attribute the attribute name (use dot to concatenate multiple attributes)
-	 * or anonymous function (PHP 5.3+).
+	 * or anonymous function (PHP 5.3+). Remember that functions created by "create_function"
+	 * are not supported by this method. Also note that numeric value is meaningless when
+	 * first parameter is object typed.
 	 * @param mixed $defaultValue the default value to return when the attribute does not exist.
 	 * @return mixed the attribute value.
 	 */
 	public static function value($model,$attribute,$defaultValue=null)
 	{
-		if(is_string($attribute))
+		if(is_scalar($attribute) || $attribute===null)
 			foreach(explode('.',$attribute) as $name)
 			{
-				if(is_object($model))
+				if(is_object($model) && isset($model->$name))
 					$model=$model->$name;
 				elseif(is_array($model) && isset($model[$name]))
 					$model=$model[$name];
