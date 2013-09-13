@@ -140,7 +140,18 @@ abstract class CApplication extends CModule
 			$this->setBasePath('protected');
 		Yii::setPathOfAlias('application',$this->getBasePath());
 		Yii::setPathOfAlias('webroot',dirname($_SERVER['SCRIPT_FILENAME']));
-		Yii::setPathOfAlias('ext',$this->getBasePath().DIRECTORY_SEPARATOR.'extensions');
+		if(isset($config['extensionPath']))
+		{
+			$this->setExtensionPath($config['extensionPath']);
+			unset($config['extensionPath']);
+		}
+		else
+			Yii::setPathOfAlias('ext',$this->getBasePath().DIRECTORY_SEPARATOR.'extensions');
+		if(isset($config['aliases']))
+		{
+			$this->setAliases($config['aliases']);
+			unset($config['aliases']);
+		}
 
 		$this->preinit();
 
@@ -292,6 +303,7 @@ abstract class CApplication extends CModule
 	/**
 	 * Sets the root directory that holds all third-party extensions.
 	 * @param string $path the directory that contains all third-party extensions.
+	 * @throws CException if the directory does not exist
 	 */
 	public function setExtensionPath($path)
 	{

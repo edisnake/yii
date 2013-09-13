@@ -46,4 +46,4 @@ $this->menu=array(
 
 <h1>Update <?php echo $this->modelClass." <?php echo $strId; ?>"; ?></h1>
 
-<?php echo "<?php echo \$this->renderPartial('_form', array('model'=>\$model)); ?>"; ?>
+<?php echo "<?php \$this->renderPartial('_form', array('model'=>\$model)); ?>"; ?>
