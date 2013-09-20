@@ -29,7 +29,7 @@
 foreach($this->tableSchema->columns as $column)
 {
 	/* If column is autoIncrement or ( if is integer, float or double primary key and is not a ForeignKey ) */
-	if($column->autoIncrement || ($column->isPrimaryKey && preg_match('/(integer|float|double)/',$column->type) && !$column->isForeignKey))
+	if(($column->autoIncrement && !$column->isForeignKey) || ($column->isPrimaryKey && preg_match('/(integer|float|double)/',$column->type) && !$column->isForeignKey))
 		continue;
 ?>
 	<div class="row"<?php if ($column->isPrimaryKey) echo " <?php if (!\$model->isNewRecord) echo \"style='display: none;'\"; ?>"; ?>>
