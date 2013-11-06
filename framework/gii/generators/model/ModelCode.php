@@ -229,7 +229,7 @@ class ModelCode extends CCodeModel
 		foreach($table->columns as $column)
 		{
 			//If column is autoIncrement or ( if is integer, float or double primary key and is not a ForeignKey ) 
-			if(($column->autoIncrement && !$column->isForeignKey) || ($column->isPrimaryKey && preg_match('/(integer|float|double)/',$column->type) && !$column->isForeignKey))
+			if(($column->autoIncrement && !$column->isForeignKey && $column->type <> 'string') || ($column->isPrimaryKey && preg_match('/(integer|float|double)/',$column->type) && !$column->isForeignKey))
 				continue;
 			$r=!$column->allowNull && $column->defaultValue===null;
 			if($r)
