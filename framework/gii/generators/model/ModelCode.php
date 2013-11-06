@@ -280,7 +280,7 @@ class ModelCode extends CCodeModel
 			foreach($float as $len=>$cols)
 			{
 				$aux = explode('-',$len);
-				$rules[]="array('".implode(', ',$cols)."', 'match', 'pattern'=>'/^\d{1,$aux[0]}(\.\d{1,$aux[1]})?$/')";
+				$rules[]="array('".implode(', ',$cols)."', 'match', 'pattern'=>'/^\d{0,$aux[0]}(\.\d{1,$aux[1]})?$/')";
 			}
 		}
 		
